@@ -108,8 +108,14 @@ public class DeepSeekProvider implements LlmProvider {
         Map<String, Object> responseMap = mapper.readValue(responseBody, Map.class);
 
         List<Map<String, Object>> choices = (List<Map<String, Object>>) responseMap.get("choices");
+        if (choices == null || choices.isEmpty()) {
+            return new LlmResponse("", List.of(), "error", new LlmResponse.TokenUsage(0, 0, 0));
+        }
         Map<String, Object> choice = choices.get(0);
         Map<String, Object> message = (Map<String, Object>) choice.get("message");
+        if (message == null) {
+            return new LlmResponse("", List.of(), "error", new LlmResponse.TokenUsage(0, 0, 0));
+        }
 
         String content = (String) message.get("content");
         String finishReason = (String) choice.get("finish_reason");
@@ -120,13 +126,21 @@ public class DeepSeekProvider implements LlmProvider {
             for (Map<String, Object> rawToolCall : rawToolCalls) {
                 String id = (String) rawToolCall.get("id");
                 Map<String, Object> function = (Map<String, Object>) rawToolCall.get("function");
+                if (function == null) {
+                    continue;  // skip malformed tool call
+                }
                 String name = (String) function.get("name");
+                if (name == null) continue;
                 Map<String, Object> arguments;
-                try {
-                    arguments = mapper.readValue(
-                            (String) function.get("arguments"), Map.class);
-                } catch (JsonProcessingException e) {
+                Object rawArgs = function.get("arguments");
+                if (rawArgs == null) {
                     arguments = Map.of();
+                } else {
+                    try {
+                        arguments = mapper.readValue((String) rawArgs, Map.class);
+                    } catch (JsonProcessingException e) {
+                        arguments = Map.of();
+                    }
                 }
                 toolCalls.add(new LlmResponse.ToolCall(id, name, arguments));
             }
