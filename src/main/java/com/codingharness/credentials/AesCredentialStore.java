@@ -31,6 +31,7 @@ public class AesCredentialStore implements CredentialStore {
     private final Path storeFile;
     private final String masterPassword;
     private final Map<String, String> cache;
+    private final Object cacheLock = new Object();
 
     public AesCredentialStore(Path directory, String masterPassword) {
         if (masterPassword == null || masterPassword.isEmpty()) {
@@ -50,23 +51,31 @@ public class AesCredentialStore implements CredentialStore {
         if (value == null) {
             throw new IllegalArgumentException("value must not be null");
         }
-        cache.put(key, value);
+        synchronized (cacheLock) {
+            cache.put(key, value);
+        }
         persist();
     }
 
     @Override
     public Optional<String> retrieve(String key) {
-        return Optional.ofNullable(cache.get(key));
+        synchronized (cacheLock) {
+            return Optional.ofNullable(cache.get(key));
+        }
     }
 
     @Override
     public boolean exists(String key) {
-        return cache.containsKey(key);
+        synchronized (cacheLock) {
+            return cache.containsKey(key);
+        }
     }
 
     @Override
     public void delete(String key) {
-        cache.remove(key);
+        synchronized (cacheLock) {
+            cache.remove(key);
+        }
         persist();
     }
 
@@ -107,8 +116,10 @@ public class AesCredentialStore implements CredentialStore {
             try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decrypted))) {
                 @SuppressWarnings("unchecked")
                 Map<String, String> loaded = (Map<String, String>) ois.readObject();
-                cache.clear();
-                cache.putAll(loaded);
+                synchronized (cacheLock) {
+                    cache.clear();
+                    cache.putAll(loaded);
+                }
             }
         } catch (java.io.IOException e) {
             System.err.println("WARNING: Credential store file not found or unreadable: " + e.getMessage());
@@ -123,7 +134,11 @@ public class AesCredentialStore implements CredentialStore {
 
             ByteArrayOutputStream bos = new ByteArrayOutputStream();
             try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-                oos.writeObject(new HashMap<>(cache));
+                Map<String, String> snapshot;
+                synchronized (cacheLock) {
+                    snapshot = new HashMap<>(cache);
+                }
+                oos.writeObject(snapshot);
             }
             byte[] plainData = bos.toByteArray();
 
