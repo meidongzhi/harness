@@ -84,4 +84,9 @@ public class DependencyAddTool implements Tool {
             return ToolResult.failure("error adding dependency: " + e.getMessage());
         }
     }
+
+    private String escapeXml(String s) {
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                .replace("\"", "&quot;").replace("'", "&apos;");
+    }
 }

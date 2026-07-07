@@ -4,6 +4,7 @@ import com.codingharness.llm.LlmProvider;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Unified runtime that orchestrates the full memory subsystem for a
@@ -37,6 +38,10 @@ public class ProjectMemoryRuntime {
     public ProjectMemoryRuntime(int windowSize, int threshold,
                                 MemoryStore summaryStore,
                                 LlmProvider llmProvider) {
+        if (windowSize <= 0) throw new IllegalArgumentException("windowSize must be positive");
+        if (threshold <= 0) throw new IllegalArgumentException("threshold must be positive");
+        Objects.requireNonNull(summaryStore, "summaryStore must not be null");
+        Objects.requireNonNull(llmProvider, "llmProvider must not be null");
         this.window = new SlidingWindowManager(windowSize, threshold);
         this.scheduler = new SummaryScheduler();
         this.summaryStore = summaryStore;
