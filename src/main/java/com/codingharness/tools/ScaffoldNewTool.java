@@ -57,7 +57,7 @@ public class ScaffoldNewTool implements Tool {
                         + "         xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n"
                         + "    <modelVersion>4.0.0</modelVersion>\n"
                         + "    <groupId>com.example</groupId>\n"
-                        + "    <artifactId>" + name + "</artifactId>\n"
+                        + "    <artifactId>" + escapeXml(name) + "</artifactId>\n"
                         + "    <version>1.0.0</version>\n"
                         + "</project>\n";
                     Files.writeString(projectDir.resolve("pom.xml"), pomXml);
@@ -89,5 +89,10 @@ public class ScaffoldNewTool implements Tool {
         } catch (Exception e) {
             return ToolResult.failure("error scaffolding project: " + e.getMessage());
         }
+    }
+
+    private String escapeXml(String s) {
+        return s.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                .replace("\"", "&quot;").replace("'", "&apos;");
     }
 }
