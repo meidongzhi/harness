@@ -23,6 +23,8 @@ public class SlidingWindowManager {
      * @param summaryThreshold  trigger summarization every N turns
      */
     public SlidingWindowManager(int windowSize, int summaryThreshold) {
+        if (windowSize <= 0) throw new IllegalArgumentException("windowSize must be positive");
+        if (summaryThreshold <= 0) throw new IllegalArgumentException("summaryThreshold must be positive");
         this.windowSize = windowSize;
         this.summaryThreshold = summaryThreshold;
     }
