@@ -32,6 +32,9 @@ public class AesCredentialStore implements CredentialStore {
     private final Map<String, String> cache;
 
     public AesCredentialStore(Path directory, String masterPassword) {
+        if (masterPassword == null || masterPassword.isEmpty()) {
+            throw new IllegalArgumentException("masterPassword must not be null or empty");
+        }
         this.storeFile = directory.resolve("credentials.enc");
         this.masterPassword = masterPassword;
         this.cache = new HashMap<>();
