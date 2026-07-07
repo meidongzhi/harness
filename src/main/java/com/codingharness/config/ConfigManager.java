@@ -48,6 +48,7 @@ public class ConfigManager {
             return new HarnessConfig(maxTurns, autoApproveLevel, model, provider,
                 baseUrl, memoryBackend, memoryDbPath, shellWhitelist);
         } catch (IOException e) {
+            System.err.println("WARNING: Failed to load config from " + configPath + ": " + e.getMessage() + ". Using defaults.");
             return HarnessConfig.defaults();
         }
     }
