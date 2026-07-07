@@ -26,7 +26,11 @@ public class FileGuard implements Guard {
             return GuardResult.block("Path outside project boundary");
         }
 
-        String fileName = resolved.getFileName().toString();
+        Path fileNamePath = resolved.getFileName();
+        if (fileNamePath == null) {
+            return GuardResult.requireApproval("Cannot determine filename for path: " + resolved, "WARNING");
+        }
+        String fileName = fileNamePath.toString();
         if (".env".equals(fileName) || ".git".equals(fileName) || fileName.toLowerCase().contains("credentials")) {
             return GuardResult.block("Sensitive file");
         }
