@@ -45,6 +45,12 @@ public class SQLiteStore implements MemoryStore {
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize SQLite schema", e);
         }
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute("PRAGMA journal_mode=WAL");
+        } catch (SQLException e) {
+            System.err.println("WARNING: Failed to enable WAL mode: " + e.getMessage());
+        }
     }
 
     private Connection getConnection() throws SQLException {
