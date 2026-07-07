@@ -58,14 +58,14 @@ public class DependencyAddTool implements Tool {
             String dependencyXml;
             if (artifactId != null && !artifactId.isBlank()) {
                 dependencyXml = "        <dependency>\n"
-                    + "            <groupId>" + groupId + "</groupId>\n"
-                    + "            <artifactId>" + artifactId + "</artifactId>\n"
-                    + "            <version>" + version + "</version>\n"
+                    + "            <groupId>" + escapeXml(groupId) + "</groupId>\n"
+                    + "            <artifactId>" + escapeXml(artifactId) + "</artifactId>\n"
+                    + "            <version>" + escapeXml(version) + "</version>\n"
                     + "        </dependency>\n";
             } else {
                 dependencyXml = "        <dependency>\n"
-                    + "            <groupId>" + groupId + "</groupId>\n"
-                    + "            <version>" + version + "</version>\n"
+                    + "            <groupId>" + escapeXml(groupId) + "</groupId>\n"
+                    + "            <version>" + escapeXml(version) + "</version>\n"
                     + "        </dependency>\n";
             }
 

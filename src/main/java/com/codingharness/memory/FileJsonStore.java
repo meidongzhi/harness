@@ -111,7 +111,11 @@ public class FileJsonStore implements MemoryStore {
 
     private void writeToFile() {
         try {
-            Files.createDirectories(filePath.getParent());
+            Path parent = filePath.getParent();
+            if (parent == null) {
+                parent = Path.of(".");
+            }
+            Files.createDirectories(parent);
         } catch (IOException e) {
             throw new RuntimeException("Failed to create directories for " + filePath, e);
         }
