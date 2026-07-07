@@ -37,6 +37,8 @@ public class InMemoryStore implements MemoryStore {
     public List<MemoryEntry> listRecent(int limit) {
         int size = history.size();
         int start = Math.max(0, size - limit);
-        return new ArrayList<>(history.subList(start, size));
+        List<MemoryEntry> recent = new ArrayList<>(history.subList(start, size));
+        java.util.Collections.reverse(recent);
+        return recent;
     }
 }
