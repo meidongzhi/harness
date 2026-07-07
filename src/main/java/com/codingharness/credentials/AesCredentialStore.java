@@ -81,14 +81,15 @@ public class AesCredentialStore implements CredentialStore {
 
     @Override
     public String maskedDisplay(String key) {
-        String value = cache.get(key);
-        if (value == null) {
-            return "*** (not set)";
-        }
-        if (value.length() <= 8) {
-            return "***-" + value.substring(Math.max(0, value.length() - 4));
-        } else {
-            return "***-" + value.substring(value.length() - 6);
+        synchronized (cacheLock) {
+            String value = cache.get(key);
+            if (value == null) {
+                return "*** (not set)";
+            }
+            if (value.length() <= 4) {
+                return "***";
+            }
+            return "***-" + value.substring(value.length() - Math.min(6, value.length()));
         }
     }
 
