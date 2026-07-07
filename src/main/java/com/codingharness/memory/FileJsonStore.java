@@ -52,11 +52,16 @@ public class FileJsonStore implements MemoryStore {
 
     @Override
     public synchronized void save(String key, String value, Map<String, String> metadata) {
+        // Create the entry
         MemoryEntry entry = new MemoryEntry(key, value, new HashMap<>(metadata), Instant.now());
+        // Write to disk FIRST
+        Map<String, MemoryEntry> updated = new HashMap<>(store);
+        updated.put(key, entry);
+        writeAllEntries(updated.values());
+        // Then update in-memory state
         store.put(key, entry);
         history.removeIf(e -> e.key().equals(key));
         history.add(entry);
-        writeToFile();
     }
 
     @Override
@@ -74,10 +79,15 @@ public class FileJsonStore implements MemoryStore {
 
     @Override
     public synchronized void delete(String key) {
-        MemoryEntry removed = store.remove(key);
+        MemoryEntry removed = store.get(key);
         if (removed != null) {
+            // Write to disk FIRST
+            Map<String, MemoryEntry> updated = new HashMap<>(store);
+            updated.remove(key);
+            writeAllEntries(updated.values());
+            // Then update in-memory state
+            store.remove(key);
             history.removeIf(e -> e.key().equals(key));
-            writeToFile();
         }
     }
 
