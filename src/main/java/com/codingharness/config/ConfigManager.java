@@ -4,10 +4,11 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,10 +74,15 @@ public class ConfigManager {
         data.put("memory_db_path", config.memoryDbPath());
         data.put("shell_whitelist", config.shellWhitelist());
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(
-                Files.newOutputStream(configPath), StandardCharsets.UTF_8)) {
+        Path tmpPath = configPath.resolveSibling(configPath.getFileName() + ".tmp");
+        try (Writer w = Files.newBufferedWriter(tmpPath)) {
             Yaml yaml = new Yaml();
-            yaml.dump(data, writer);
+            yaml.dump(data, w);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to write config temp file", e);
+        }
+        try {
+            Files.move(tmpPath, configPath, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.ATOMIC_MOVE);
         } catch (IOException e) {
             throw new RuntimeException("Failed to save config", e);
         }
