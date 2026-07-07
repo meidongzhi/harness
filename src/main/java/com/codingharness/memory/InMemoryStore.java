@@ -7,12 +7,15 @@ import java.util.stream.Collectors;
 public class InMemoryStore implements MemoryStore {
     private final Map<String, MemoryEntry> store = new ConcurrentHashMap<>();
     private final List<MemoryEntry> history = new ArrayList<>();
+    private final Object historyLock = new Object();
 
     @Override
     public void save(String key, String value, Map<String, String> metadata) {
         MemoryEntry entry = new MemoryEntry(key, value, new HashMap<>(metadata), java.time.Instant.now());
         store.put(key, entry);
-        history.add(entry);
+        synchronized (historyLock) {
+            history.add(entry);
+        }
     }
 
     @Override
@@ -35,10 +38,12 @@ public class InMemoryStore implements MemoryStore {
 
     @Override
     public List<MemoryEntry> listRecent(int limit) {
-        int size = history.size();
-        int start = Math.max(0, size - limit);
-        List<MemoryEntry> recent = new ArrayList<>(history.subList(start, size));
-        java.util.Collections.reverse(recent);
-        return recent;
+        synchronized (historyLock) {
+            int size = history.size();
+            int start = Math.max(0, size - limit);
+            List<MemoryEntry> recent = new ArrayList<>(history.subList(start, size));
+            java.util.Collections.reverse(recent);
+            return recent;
+        }
     }
 }
