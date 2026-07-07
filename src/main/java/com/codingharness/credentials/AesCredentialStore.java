@@ -164,8 +164,10 @@ public class AesCredentialStore implements CredentialStore {
     }
 
     private SecretKey deriveKey(String password) throws Exception {
-        // Machine-local salt binding.
-        // This is a machine-local binding, not a true secret. For production, use OS keychain or a user-provided passphrase.
+        // WARNING: This machine-local passphrase is NOT cryptographically secure.
+        // Anyone with filesystem access and knowledge of the system username/home
+        // can derive the same key. For production, use OS keychain (Windows Credential
+        // Manager / macOS Keychain / Linux Secret Service) or a user-provided passphrase.
         byte[] salt = ("coding-harness-" + System.getProperty("user.name", "default")).getBytes(StandardCharsets.UTF_8);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, PBKDF2_ITERATIONS, KEY_LENGTH);

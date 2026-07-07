@@ -48,8 +48,10 @@ public class CliMain {
     public CliMain() {
         this.configManager = new ConfigManager(CONFIG_FILE);
         this.memory = new HarnessMemory(new InMemoryStore());
-        // Derive a machine-local passphrase from available system info.
-        // This is a machine-local binding, not a true secret. For production, use OS keychain or a user-provided passphrase.
+        // WARNING: This machine-local passphrase is NOT cryptographically secure.
+        // Anyone with filesystem access and knowledge of the system username/home
+        // can derive the same key. For production, use OS keychain (Windows Credential
+        // Manager / macOS Keychain / Linux Secret Service) or a user-provided passphrase.
         String masterPw = System.getProperty("user.name", "harness") + "-" +
             System.getProperty("user.home", "").hashCode();
         this.credentialStore = new AesCredentialStore(CONFIG_DIR, masterPw);
