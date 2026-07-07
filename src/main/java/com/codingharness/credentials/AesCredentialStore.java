@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
@@ -149,7 +150,7 @@ public class AesCredentialStore implements CredentialStore {
     private SecretKey deriveKey(String password) throws Exception {
         // Machine-local salt binding.
         // This is a machine-local binding, not a true secret. For production, use OS keychain or a user-provided passphrase.
-        byte[] salt = ("coding-harness-" + System.getProperty("user.name", "default")).getBytes();
+        byte[] salt = ("coding-harness-" + System.getProperty("user.name", "default")).getBytes(StandardCharsets.UTF_8);
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, PBKDF2_ITERATIONS, KEY_LENGTH);
         SecretKey tmp = factory.generateSecret(spec);
