@@ -115,7 +115,7 @@ public class ConfigManager {
     private List<String> getList(Map<String, Object> data, String key, List<String> defaultVal) {
         Object val = data.get(key);
         if (val instanceof List) {
-            return (List<String>) val;
+            return ((List<?>) val).stream().filter(String.class::isInstance).map(String.class::cast).toList();
         }
         return defaultVal;
     }
