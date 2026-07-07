@@ -4,8 +4,22 @@ import com.codingharness.core.Action;
 import com.codingharness.core.ProjectContext;
 
 import java.nio.file.Path;
+import java.util.List;
 
 public class FileGuard implements Guard {
+
+    private static final List<String> SENSITIVE_PATTERNS = List.of(
+        ".env",
+        ".git",
+        "credentials",
+        "/.git-credentials",
+        "id_rsa",
+        "*.pem",
+        "*.key",
+        "*.pfx",
+        "*.keystore",
+        "*.jks"
+    );
 
     @Override
     public GuardResult check(Action action, ProjectContext ctx) {
@@ -31,10 +45,32 @@ public class FileGuard implements Guard {
             return GuardResult.requireApproval("Cannot determine filename for path: " + resolved, "WARNING");
         }
         String fileName = fileNamePath.toString();
-        if (".env".equals(fileName) || ".git".equals(fileName) || fileName.toLowerCase().contains("credentials")) {
+        if (isSensitive(fileName, pathStr)) {
             return GuardResult.block("Sensitive file");
         }
 
         return GuardResult.allow();
+    }
+
+    private boolean isSensitive(String fileName, String fullPath) {
+        String lowerName = fileName.toLowerCase();
+        String lowerPath = fullPath.toLowerCase();
+        for (String pattern : SENSITIVE_PATTERNS) {
+            if (pattern.startsWith("/")) {
+                if (lowerPath.contains(pattern.toLowerCase())) {
+                    return true;
+                }
+            } else if (pattern.startsWith("*")) {
+                String suffix = pattern.substring(1);
+                if (lowerName.endsWith(suffix)) {
+                    return true;
+                }
+            } else {
+                if (lowerName.equals(pattern.toLowerCase()) || lowerName.contains(pattern.toLowerCase())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
