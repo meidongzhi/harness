@@ -21,6 +21,7 @@ public class StopJudge {
         }
 
         if (feedback == null) {
+            consecutiveFailures = 0;
             return StopDecision.CONTINUE;
         }
 

@@ -106,8 +106,10 @@ public class AesCredentialStore implements CredentialStore {
                 cache.clear();
                 cache.putAll(loaded);
             }
+        } catch (java.io.IOException e) {
+            System.err.println("WARNING: Credential store file not found or unreadable: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("WARNING: Failed to load credential store, starting with empty cache: " + e.getMessage());
+            System.err.println("ERROR: Failed to decrypt/deserialize credential store — data may be corrupted or password changed: " + e.getClass().getSimpleName());
         }
     }
 

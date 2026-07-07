@@ -48,7 +48,7 @@ public class DeepSeekProvider implements LlmProvider {
             String json = mapper.writeValueAsString(requestBody);
 
             Request httpRequest = new Request.Builder()
-                    .url(baseUrl + "/v1/chat/completions")
+                    .url(cleanBaseUrl(baseUrl) + "/v1/chat/completions")
                     .header("Authorization", "Bearer " + apiKey)
                     .header("Content-Type", "application/json")
                     .post(RequestBody.create(json, JSON))
@@ -159,5 +159,9 @@ public class DeepSeekProvider implements LlmProvider {
         }
 
         return new LlmResponse(content, toolCalls, finishReason, tokenUsage);
+    }
+
+    private String cleanBaseUrl(String baseUrl) {
+        return baseUrl.endsWith("/") ? baseUrl.substring(0, baseUrl.length() - 1) : baseUrl;
     }
 }

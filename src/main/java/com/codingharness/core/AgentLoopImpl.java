@@ -3,7 +3,6 @@ package com.codingharness.core;
 import com.codingharness.feedback.FeedbackResult;
 import com.codingharness.feedback.FeedbackSensor;
 import com.codingharness.guard.GuardChain;
-import com.codingharness.guard.HitlStateMachine;
 import com.codingharness.llm.LlmProvider;
 import com.codingharness.tools.*;
 import java.util.*;
@@ -33,7 +32,6 @@ public class AgentLoopImpl {
     public LoopResult run(ProjectContext ctx) {
         List<String> history = new ArrayList<>();
         FeedbackResult feedback = null;
-        HitlStateMachine hitl = new HitlStateMachine();
 
         for (int turn = 0; turn < maxTurns; turn++) {
             // 1. Build context
@@ -63,8 +61,25 @@ public class AgentLoopImpl {
             for (Action action : actions) {
                 var guardResult = guardChain.check(action, ctx);
                 if (!guardResult.allowed()) {
-                    history.add("BLOCKED: " + action.type() + " - " + guardResult.reason());
-                    continue;
+                    if ("SAFE".equals(guardResult.requiredApproval())) {
+                        // Shouldn't happen, but skip
+                        history.add("Unexpected block: " + action.type() + " - " + guardResult.reason());
+                        continue;
+                    } else if ("WARNING".equals(guardResult.requiredApproval())) {
+                        // Auto-approve WARNING based on config level
+                        String approveLevel = ctx.config().autoApproveLevel();
+                        if ("WARNING".equals(approveLevel) || "SAFE".equals(approveLevel)) {
+                            history.add("Auto-approved: " + action.type());
+                            // fall through to execute
+                        } else {
+                            history.add("Skipped (needs approval): " + action.type() + " - " + guardResult.reason());
+                            continue;
+                        }
+                    } else {
+                        // CRITICAL — always blocked
+                        history.add("BLOCKED: " + action.type() + " - " + guardResult.reason());
+                        continue;
+                    }
                 }
 
                 // Execute tool
@@ -84,7 +99,14 @@ public class AgentLoopImpl {
             }
 
             // 5. Get feedback
-            feedback = feedbackSensor.sense(ctx);
+            try {
+                feedback = feedbackSensor.sense(ctx);
+            } catch (Exception e) {
+                history.add("ERROR: Feedback sensor failed: " + e.getMessage());
+                feedback = new FeedbackResult(false, List.of(),
+                    List.of(new FeedbackResult.CompileError("feedback", 0, "Sensor error: " + e.getMessage())),
+                    List.of());
+            }
 
             // 6. Stop judge
             var decision = stopJudge.decide(history, feedback, turn);

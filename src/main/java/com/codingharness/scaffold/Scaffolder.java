@@ -11,7 +11,12 @@ import java.util.Map;
  *
  * <p>All templates are embedded as Java String constants to avoid
  * classpath-loading issues at runtime.</p>
+ *
+ * @deprecated Kept for future integration. Not currently wired into the
+ *             main agent loop but retained as template code for scaffolding
+ *             new projects when that feature is enabled.
  */
+@Deprecated
 public class Scaffolder {
 
     private static final String POM_TEMPLATE = """

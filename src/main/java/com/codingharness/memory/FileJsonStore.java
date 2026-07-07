@@ -9,7 +9,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Simple file-backed {@link MemoryStore} that persists all entries as a
@@ -105,10 +112,21 @@ public class FileJsonStore implements MemoryStore {
     private void writeToFile() {
         try {
             Files.createDirectories(filePath.getParent());
-            List<MemoryEntry> entries = new ArrayList<>(store.values());
-            MAPPER.writeValue(filePath.toFile(), entries);
         } catch (IOException e) {
-            throw new RuntimeException("Failed to write memory to " + filePath, e);
+            throw new RuntimeException("Failed to create directories for " + filePath, e);
+        }
+        List<MemoryEntry> entries = new ArrayList<>(store.values());
+        writeAllEntries(entries);
+    }
+
+    private void writeAllEntries(Collection<MemoryEntry> entries) {
+        Path tmpFile = filePath.resolveSibling(filePath.getFileName() + ".tmp");
+        try {
+            MAPPER.writeValue(tmpFile.toFile(), entries);
+            Files.move(tmpFile, filePath, java.nio.file.StandardCopyOption.REPLACE_EXISTING, java.nio.file.StandardCopyOption.ATOMIC_MOVE);
+        } catch (IOException e) {
+            try { Files.deleteIfExists(tmpFile); } catch (IOException ignored) {}
+            throw new java.io.UncheckedIOException("Failed to write entries to " + filePath, e);
         }
     }
 }

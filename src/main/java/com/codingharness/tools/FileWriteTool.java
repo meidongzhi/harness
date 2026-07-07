@@ -39,7 +39,11 @@ public class FileWriteTool implements Tool {
             if (!resolved.startsWith(ctx.projectRoot().normalize())) {
                 return ToolResult.failure("path escapes project root: " + path);
             }
-            Files.createDirectories(resolved.getParent());
+            Path parent = resolved.getParent();
+            if (parent == null) {
+                return ToolResult.failure("Cannot operate on root path");
+            }
+            Files.createDirectories(parent);
             Files.writeString(resolved, content);
             return ToolResult.success(path);
         } catch (Exception e) {

@@ -1,6 +1,7 @@
 package com.codingharness.memory;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * Retrieves the most relevant {@link ConversationSummary} records for a
@@ -24,6 +25,11 @@ public class SemanticRetriever {
      * @return cosine similarity in [-1, 1] (typically [0, 1] for embeddings)
      */
     public double cosineSimilarity(float[] a, float[] b) {
+        Objects.requireNonNull(a, "a must not be null");
+        Objects.requireNonNull(b, "b must not be null");
+        if (a.length != b.length) {
+            throw new IllegalArgumentException("Vectors must have same length: " + a.length + " vs " + b.length);
+        }
         double dot = 0, normA = 0, normB = 0;
         for (int i = 0; i < a.length; i++) {
             dot += a[i] * b[i];
