@@ -12,8 +12,8 @@ public class InMemoryStore implements MemoryStore {
     @Override
     public void save(String key, String value, Map<String, String> metadata) {
         MemoryEntry entry = new MemoryEntry(key, value, new HashMap<>(metadata), java.time.Instant.now());
-        store.put(key, entry);
         synchronized (historyLock) {
+            store.put(key, entry);
             history.add(entry);
         }
     }
