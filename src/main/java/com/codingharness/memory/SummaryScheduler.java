@@ -74,9 +74,9 @@ public class SummaryScheduler {
      */
     private List<String> extractTopics(String text) {
         if (text == null || text.isBlank()) return List.of();
-        return List.of(text.split("\\s+")).stream()
-                .filter(w -> w.length() > 3 && Character.isUpperCase(w.charAt(0)))
+        return java.util.Arrays.stream(text.split("\\s+"))
                 .map(w -> w.replaceAll("[^a-zA-Z]", ""))
+                .filter(w -> w.length() > 3)
                 .distinct()
                 .limit(5)
                 .toList();
