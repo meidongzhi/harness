@@ -1,0 +1,46 @@
+package com.codingharness.tools;
+
+import com.codingharness.core.ProjectContext;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Map;
+
+public class FileReadTool implements Tool {
+    @Override
+    public String name() { return "file_read"; }
+
+    @Override
+    public String description() { return "Read a file from the project"; }
+
+    @Override
+    public Map<String, Object> parameters() {
+        return Map.of(
+            "type", "object",
+            "properties", Map.of(
+                "path", Map.of("type", "string", "description", "File path relative to project root")
+            ),
+            "required", java.util.List.of("path")
+        );
+    }
+
+    @Override
+    public ToolResult execute(Map<String, Object> args, ProjectContext ctx) {
+        String path = (String) args.get("path");
+        if (path == null || path.isBlank()) {
+            return ToolResult.failure("path parameter is required");
+        }
+        try {
+            Path resolved = ctx.projectRoot().resolve(path).normalize();
+            if (!resolved.startsWith(ctx.projectRoot().normalize())) {
+                return ToolResult.failure("path escapes project root: " + path);
+            }
+            if (!Files.exists(resolved)) {
+                return ToolResult.failure("file not found: " + path);
+            }
+            String content = Files.readString(resolved);
+            return ToolResult.success(content);
+        } catch (Exception e) {
+            return ToolResult.failure("error reading file: " + e.getMessage());
+        }
+    }
+}
