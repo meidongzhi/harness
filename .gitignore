@@ -1,0 +1,34 @@
+# Maven
+target/
+*.jar
+!harness.jar
+
+# IDE
+.idea/
+*.iml
+.vscode/
+nbproject/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets (NEVER commit these)
+.env
+*.p12
+*.jks
+*.keystore
+credentials.properties
+**/secrets/
+
+# Logs
+logs/
+*.log
+
+# Temp
+tmp/
+temp/
+*.tmp
+
+# Generated projects (harness output)
+workspace/
