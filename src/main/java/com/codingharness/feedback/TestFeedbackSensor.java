@@ -56,7 +56,13 @@ public class TestFeedbackSensor implements FeedbackSensor {
                 }
             }
 
-            process.waitFor(300, TimeUnit.SECONDS);
+            boolean finished = process.waitFor(300, TimeUnit.SECONDS);
+            if (!finished) {
+                process.destroyForcibly();
+                return new FeedbackResult(false, List.of(),
+                    List.of(new FeedbackResult.CompileError("timeout", 0, "Build timed out after 300s")),
+                    List.of());
+            }
 
             if (!buildSuccess && testsRun == 0 && testsFailed == 0 && testsError == 0) {
                 errors.add(new FeedbackResult.CompileError("pom.xml", 0, "Build failed with no test results"));
