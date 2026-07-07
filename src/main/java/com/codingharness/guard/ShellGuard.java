@@ -14,7 +14,13 @@ public class ShellGuard implements Guard {
         "> /dev/",
         "mkfs",
         "dd if=",
-        ":(){"
+        ":(){",
+        "del /f",
+        "del /s",
+        "format",
+        "reg delete",
+        "diskpart",
+        "rmdir /s"
     );
 
     @Override
