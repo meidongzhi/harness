@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * This test shows the agent receiving error feedback and adjusting its next action.
  * Uses MockLlmProvider — deterministic, no real LLM.
  */
-class FeedbackLoopDemo {
+class FeedbackLoopDemoTest {
     @Test
     void demo2_FeedbackCausesBehaviorChange(@TempDir Path tmpDir) {
         // Script: turn 1 writes a buggy file, turn 2 fixes it after feedback

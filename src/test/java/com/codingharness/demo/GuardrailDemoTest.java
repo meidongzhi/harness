@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Mechanism Demo 1: Guardrail interception of dangerous actions.
  * This test demonstrates DETERMINISTIC guardrail behavior — no LLM involved.
  */
-class GuardrailDemo {
+class GuardrailDemoTest {
     private ProjectContext ctx(Path root) {
         return ProjectContext.create("demo", root,
             new HarnessMemory(new InMemoryStore()), HarnessConfig.defaults());

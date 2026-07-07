@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Demonstrates: sliding window, summary generation, semantic retrieval.
  * All deterministic with MockLlmProvider.
  */
-class MemoryMechanismDemo {
+class MemoryMechanismDemoTest {
     @Test
     void demo3_SlidingWindowManagement() {
         SlidingWindowManager swm = new SlidingWindowManager(20, 10);
