@@ -142,7 +142,9 @@ public class AesCredentialStore implements CredentialStore {
     }
 
     private SecretKey deriveKey(String password) throws Exception {
-        byte[] salt = "coding-harness-salt".getBytes();
+        // Machine-local salt binding.
+        // This is a machine-local binding, not a true secret. For production, use OS keychain or a user-provided passphrase.
+        byte[] salt = ("coding-harness-" + System.getProperty("user.name", "default")).getBytes();
         SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
         KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, PBKDF2_ITERATIONS, KEY_LENGTH);
         SecretKey tmp = factory.generateSecret(spec);

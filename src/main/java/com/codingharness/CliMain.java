@@ -48,7 +48,11 @@ public class CliMain {
     public CliMain() {
         this.configManager = new ConfigManager(CONFIG_FILE);
         this.memory = new HarnessMemory(new InMemoryStore());
-        this.credentialStore = new AesCredentialStore(CONFIG_DIR, "coding-harness-master");
+        // Derive a machine-local passphrase from available system info.
+        // This is a machine-local binding, not a true secret. For production, use OS keychain or a user-provided passphrase.
+        String masterPw = System.getProperty("user.name", "harness") + "-" +
+            System.getProperty("user.home", "").hashCode();
+        this.credentialStore = new AesCredentialStore(CONFIG_DIR, masterPw);
         this.scanner = new Scanner(System.in);
         this.config = configManager.load();
     }
