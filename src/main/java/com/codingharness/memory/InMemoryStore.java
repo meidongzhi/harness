@@ -33,8 +33,8 @@ public class InMemoryStore implements MemoryStore {
 
     @Override
     public void delete(String key) {
-        store.remove(key);
         synchronized (historyLock) {
+            store.remove(key);
             history.removeIf(e -> e.key().equals(key));
         }
     }
