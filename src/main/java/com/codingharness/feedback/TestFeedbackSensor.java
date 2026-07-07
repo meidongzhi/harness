@@ -30,12 +30,13 @@ public class TestFeedbackSensor implements FeedbackSensor {
         int testsFailed = 0;
         int testsError = 0;
 
+        Process process = null;
         try {
             ProcessBuilder pb = new ProcessBuilder(mvnCommand, "test");
             pb.directory(ctx.projectRoot().toFile());
             pb.redirectErrorStream(true);
 
-            Process process = pb.start();
+            process = pb.start();
 
             List<String> outputLines = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
@@ -80,6 +81,9 @@ public class TestFeedbackSensor implements FeedbackSensor {
             }
 
         } catch (Exception e) {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
             errors.add(new FeedbackResult.CompileError("N/A", 0, "Sensor error: " + e.getMessage()));
             return new FeedbackResult(false, failures, errors, warnings);
         }

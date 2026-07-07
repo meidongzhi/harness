@@ -27,6 +27,7 @@ public class TestRunTool implements Tool {
 
     @Override
     public ToolResult execute(Map<String, Object> args, ProjectContext ctx) {
+        Process process = null;
         try {
             ProcessBuilder pb = new ProcessBuilder();
             if (System.getProperty("os.name").toLowerCase().contains("win")) {
@@ -37,7 +38,7 @@ public class TestRunTool implements Tool {
             pb.directory(ctx.projectRoot().toFile());
             pb.redirectErrorStream(true);
 
-            Process process = pb.start();
+            process = pb.start();
             StringBuilder output = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
@@ -94,6 +95,9 @@ public class TestRunTool implements Tool {
                 return ToolResult.failure(summary.toString());
             }
         } catch (Exception e) {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
             return ToolResult.failure("error running tests: " + e.getMessage());
         }
     }

@@ -4,6 +4,7 @@ import com.codingharness.feedback.FeedbackResult;
 import com.codingharness.feedback.FeedbackSensor;
 import com.codingharness.guard.GuardChain;
 import com.codingharness.llm.LlmProvider;
+import com.codingharness.llm.LlmResponse;
 import com.codingharness.tools.*;
 import java.util.*;
 
@@ -30,6 +31,7 @@ public class AgentLoopImpl {
     public enum LoopResult { SUCCESS, FAILED, NEEDS_HUMAN, MAX_TURNS }
 
     public LoopResult run(ProjectContext ctx) {
+        stopJudge.resetFailures();
         List<String> history = new ArrayList<>();
         FeedbackResult feedback = null;
 
@@ -38,7 +40,20 @@ public class AgentLoopImpl {
             var request = contextBuilder.build(tools, ctx, history, feedback);
 
             // 2. Call LLM
-            var response = llm.complete(request);
+            LlmResponse response;
+            try {
+                response = llm.complete(request);
+            } catch (Exception e) {
+                history.add("ERROR: LLM call failed: " + e.getMessage());
+                feedback = new FeedbackResult(false, List.of(),
+                    List.of(new FeedbackResult.CompileError("llm", 0, "LLM error: " + e.getMessage())),
+                    List.of());
+                var decision = stopJudge.decide(history, feedback, turn);
+                if (decision != StopJudge.StopDecision.CONTINUE) {
+                    return mapDecision(decision);
+                }
+                continue;
+            }
             if (response == null) {
                 history.add("ERROR: LLM returned null response");
                 feedback = new FeedbackResult(false, List.of(), List.of(

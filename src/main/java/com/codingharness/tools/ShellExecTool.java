@@ -37,6 +37,7 @@ public class ShellExecTool implements Tool {
             return ToolResult.failure("command parameter is required");
         }
 
+        Process process = null;
         try {
             Path workingDir = ctx.projectRoot();
             if (cwdParam != null && !cwdParam.isBlank()) {
@@ -55,7 +56,7 @@ public class ShellExecTool implements Tool {
             pb.directory(workingDir.toFile());
             pb.redirectErrorStream(true);
 
-            Process process = pb.start();
+            process = pb.start();
             StringBuilder output = new StringBuilder();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
@@ -78,6 +79,9 @@ public class ShellExecTool implements Tool {
                 return ToolResult.failure(result);
             }
         } catch (Exception e) {
+            if (process != null && process.isAlive()) {
+                process.destroyForcibly();
+            }
             return ToolResult.failure("error executing command: " + e.getMessage());
         }
     }
