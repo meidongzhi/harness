@@ -54,10 +54,13 @@ public class ConfigManager {
     }
 
     public void save(HarnessConfig config) {
-        try {
-            Files.createDirectories(configPath.getParent());
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to create config directory", e);
+        Path parent = configPath.getParent();
+        if (parent != null) {
+            try {
+                Files.createDirectories(parent);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to create config directory", e);
+            }
         }
 
         Map<String, Object> data = new LinkedHashMap<>();
