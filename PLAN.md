@@ -802,21 +802,97 @@ unit-test:
 
 ---
 
+## Task Completion Record (任务完成记录)
+
+### Phase 1: Foundation
+
+| Task | 内容 | Commit | 状态 |
+|------|------|--------|------|
+| T01 | pom.xml + 目录结构 | `d06b259` | ✅ |
+| T02 | LLM 接口 (LlmProvider/Request/Response) | `b914212` | ✅ |
+| T03 | DeepSeekProvider | `cc7f2d5` | ✅ |
+| T04 | MockLlmProvider | `6238f35` | ✅ |
+| T05 | Config system (HarnessConfig + ConfigManager) | `da10cf3` | ✅ |
+| T06 | Credential store (AesCredentialStore) | `c094887` | ✅ |
+
+### Phase 2: Core Mechanics
+
+| Task | 内容 | Commit | 状态 |
+|------|------|--------|------|
+| T07 | Tool interface + ToolResult | `16e37a8` | ✅ |
+| T08 | File I/O tools | `3c8733d` | ✅ |
+| T09 | ShellExecTool + TestRunTool | `8cdf2e2` | ✅ |
+| T10 | ScaffoldNewTool + DependencyAddTool + ProjectSummaryTool | `c50a661` | ✅ |
+| T11 | Memory tools | `c50a661` | ✅ |
+| T12 | ToolRegistry | `c50a661` | ✅ |
+| T13 | Guard interface + GuardResult + Action | `bda4dce` | ✅ |
+| T14 | FileGuard + ShellGuard | `99eb9eb` | ✅ |
+| T15 | GuardChain + HitlStateMachine | `b15bde9` | ✅ |
+| T16 | FeedbackSensor + TestFeedbackSensor | `565295d` | ✅ |
+
+### Phase 3: Memory System ★
+
+| Task | 内容 | Commit | 状态 |
+|------|------|--------|------|
+| T17 | MemoryStore interface | `fcc2fc7` | ✅ |
+| T18 | InMemoryStore + tests | `cdd9be7` | ✅ |
+| T19 | SQLiteStore | `812fcb6` | ✅ |
+| T20 | FileJsonStore | `bda7486` | ✅ |
+| T21 | HarnessMemory (projects/preferences/decisions) | `ceaefbe` | ✅ |
+| T22 | SlidingWindowManager | `0c1b1f4` | ✅ |
+| T23 | SummaryScheduler | `2c2ef29` | ✅ |
+| T24 | SemanticRetriever | `ff02681` | ✅ |
+| T25 | ProjectMemoryRuntime | `e8c5fc8` | ✅ |
+
+### Phase 4: Integration
+
+| Task | 内容 | Commit | 状态 |
+|------|------|--------|------|
+| T26 | ProjectContext | `16e37a8` | ✅ |
+| T27 | ContextBuilder | `7432697` | ✅ |
+| T28 | ActionParser + StopJudge | `4909378` | ✅ |
+| T29 | AgentLoopImpl | `7d08ff0` | ✅ |
+| T30 | CLI Main | `9f160af` | ✅ |
+| T31 | Scaffolder (Mustache) | `e39346f` | ✅ |
+| T32 | Integration test | `1b695b3` | ✅ |
+
+### Phase 5: Demos, CI, Docs
+
+| Task | 内容 | Commit | 状态 |
+|------|------|--------|------|
+| T33 | Guardrail demo | `d7b8fa4` | ✅ |
+| T34 | Feedback loop demo | `d7b8fa4` | ✅ |
+| T35 | Memory mechanism demo | `d7b8fa4` | ✅ |
+| T36 | CI (.gitlab-ci.yml) | `b2e8e4e` | ✅ |
+| T37 | README.md | `e63307e` | ✅ |
+
+### Additional
+
+| 内容 | Commit | 状态 |
+|------|--------|------|
+| SPEC_PROCESS.md | `9b495c7` | ✅ |
+| AGENT_LOG.md | `f91d990` | ✅ |
+| Demo app + Dockerfile | `44552dc` | ✅ |
+| GitHub Actions CI | `859a4a4` | ✅ |
+| CLI real LLM support | `1d37c27` | ✅ |
+
+---
+
 ## Final Checklist (对照交付物清单)
 
-| # | 交付物 | 对应 Task |
-|---|--------|-----------|
-| 1 | SPEC.md | ✅ 已完成 |
-| 2 | PLAN.md | ✅ 本文件 |
-| 3 | SPEC_PROCESS.md | 待撰写（记录 brainstorming 过程 + 冷启动验证） |
-| 4 | 完整源码 + mock-LLM 单测 | T01-T32 |
-| 5 | 分发产物（fat JAR） | T01 (shade plugin) + T30 (CLI) |
-| 6 | README.md | T37 |
-| 7 | AGENT_LOG.md | 实现过程中同步记录 |
-| 8 | .gitlab-ci.yml | T36 |
-| 9 | CI/CD 执行记录 | 推送后截图 |
-| 10 | REFLECTION.md | 最后撰写 |
-| 11 | 线上部署 URL | 生成项目的 Web 应用部署 |
-| 12 | 机制演示 ×3 | T33-T35 |
-| 13 | Git commit/PR 历史 | 每个 task 一个 commit |
+| # | 交付物 | 状态 |
+|---|--------|------|
+| 1 | SPEC.md | ✅ |
+| 2 | PLAN.md | ✅ |
+| 3 | SPEC_PROCESS.md | ✅ |
+| 4 | 完整源码 + mock-LLM 单测 (124 tests) | ✅ |
+| 5 | 分发产物 (fat JAR 23MB) | ✅ |
+| 6 | README.md | ✅ |
+| 7 | AGENT_LOG.md | ✅ |
+| 8 | .gitlab-ci.yml + GitHub Actions | ✅ |
+| 9 | CI/CD 执行记录 | ✅ (截图) |
+| 10 | REFLECTION.md | ⏳ 学生手写 |
+| 11 | 线上部署 URL | ⏳ natapp 临时 URL 已通，Render 永久部署未完成 |
+| 12 | 机制演示 ×3 | ✅ |
+| 13 | Git commit 历史 (35 commits) | ✅ |
 
