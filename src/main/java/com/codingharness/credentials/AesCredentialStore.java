@@ -40,6 +40,12 @@ public class AesCredentialStore implements CredentialStore {
 
     @Override
     public void store(String key, String value) {
+        if (key == null) {
+            throw new IllegalArgumentException("key must not be null");
+        }
+        if (value == null) {
+            throw new IllegalArgumentException("value must not be null");
+        }
         cache.put(key, value);
         persist();
     }
@@ -101,7 +107,7 @@ public class AesCredentialStore implements CredentialStore {
                 cache.putAll(loaded);
             }
         } catch (Exception e) {
-            // If decryption fails, start with empty cache
+            System.err.println("WARNING: Failed to load credential store, starting with empty cache: " + e.getMessage());
         }
     }
 
