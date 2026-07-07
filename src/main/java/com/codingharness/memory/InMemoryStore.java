@@ -14,6 +14,7 @@ public class InMemoryStore implements MemoryStore {
         MemoryEntry entry = new MemoryEntry(key, value, new HashMap<>(metadata), java.time.Instant.now());
         synchronized (historyLock) {
             store.put(key, entry);
+            history.removeIf(e -> e.key().equals(key));
             history.add(entry);
         }
     }
