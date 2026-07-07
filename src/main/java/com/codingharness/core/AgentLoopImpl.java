@@ -41,6 +41,15 @@ public class AgentLoopImpl {
 
             // 2. Call LLM
             var response = llm.complete(request);
+            if (response == null) {
+                history.add("ERROR: LLM returned null response");
+                feedback = FeedbackResult.allGood();  // can't determine
+                var decision = stopJudge.decide(history, feedback, turn);
+                if (decision != StopJudge.StopDecision.CONTINUE) {
+                    return mapDecision(decision);
+                }
+                continue;
+            }
             history.add("LLM: " + truncate(response.content(), 200));
 
             // 3. Parse actions
@@ -64,7 +73,12 @@ public class AgentLoopImpl {
                     continue;
                 }
 
-                ToolResult result = tool.execute(action.parameters(), ctx);
+                ToolResult result;
+                try {
+                    result = tool.execute(action.parameters(), ctx);
+                } catch (Exception e) {
+                    result = ToolResult.failure("Tool execution error: " + e.getMessage());
+                }
                 history.add("Tool " + action.type() + ": " + truncate(result.output(), 300));
             }
 
@@ -86,5 +100,14 @@ public class AgentLoopImpl {
     private String truncate(String s, int maxLen) {
         if (s == null) return "";
         return s.length() <= maxLen ? s : s.substring(0, maxLen) + "...";
+    }
+
+    private LoopResult mapDecision(StopJudge.StopDecision d) {
+        return switch (d) {
+            case SUCCESS -> LoopResult.SUCCESS;
+            case MAX_TURNS -> LoopResult.MAX_TURNS;
+            case NEEDS_HUMAN -> LoopResult.NEEDS_HUMAN;
+            default -> LoopResult.FAILED;
+        };
     }
 }
