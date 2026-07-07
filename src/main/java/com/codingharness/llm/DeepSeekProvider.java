@@ -59,6 +59,9 @@ public class DeepSeekProvider implements LlmProvider {
                     String errorBody = httpResponse.body() != null ? httpResponse.body().string() : "no body";
                     throw new RuntimeException("DeepSeek API error: " + httpResponse.code() + " - " + errorBody);
                 }
+                if (httpResponse.body() == null) {
+                    return new LlmResponse("", List.of(), "empty_body", new LlmResponse.TokenUsage(0, 0, 0));
+                }
                 String responseBody = httpResponse.body().string();
                 return parseResponse(responseBody);
             }
