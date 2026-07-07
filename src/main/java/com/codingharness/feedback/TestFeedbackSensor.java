@@ -37,9 +37,12 @@ public class TestFeedbackSensor implements FeedbackSensor {
 
             Process process = pb.start();
 
+            List<String> outputLines = new ArrayList<>();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    outputLines.add(line);
+
                     // Look for BUILD SUCCESS / BUILD FAILURE
                     if (line.contains("BUILD SUCCESS")) {
                         buildSuccess = true;
@@ -53,6 +56,14 @@ public class TestFeedbackSensor implements FeedbackSensor {
                         testsFailed = extractInt(line, "Failures:");
                         testsError = extractInt(line, "Errors:");
                     }
+                }
+            }
+
+            // Parse failure details from output
+            for (String line : outputLines) {
+                if (line.contains("<<< FAILURE!")) {
+                    String testName = line.replaceAll(".*<<< FAILURE!", "").trim();
+                    failures.add(new FeedbackResult.TestFailure("unknown", testName, line.trim()));
                 }
             }
 

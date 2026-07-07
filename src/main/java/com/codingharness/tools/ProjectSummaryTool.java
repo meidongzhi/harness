@@ -3,6 +3,7 @@ package com.codingharness.tools;
 import com.codingharness.core.ProjectContext;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -60,15 +61,12 @@ public class ProjectSummaryTool implements Tool {
             Path srcDir = ctx.projectRoot().resolve("src");
             if (Files.exists(srcDir)) {
                 try (Stream<Path> stream = Files.walk(srcDir)) {
-                    long javaFiles = stream.filter(p -> p.toString().endsWith(".java")).count();
+                    List<Path> files = stream.filter(Files::isRegularFile).toList();
+                    long javaFiles = files.stream().filter(p -> p.toString().endsWith(".java")).count();
+                    long pyFiles = files.stream().filter(p -> p.toString().endsWith(".py")).count();
+                    long jsFiles = files.stream().filter(p -> p.toString().endsWith(".js")).count();
                     summary.append("  Java files: ").append(javaFiles).append("\n");
-                }
-                try (Stream<Path> stream = Files.walk(srcDir)) {
-                    long pyFiles = stream.filter(p -> p.toString().endsWith(".py")).count();
                     summary.append("  Python files: ").append(pyFiles).append("\n");
-                }
-                try (Stream<Path> stream = Files.walk(srcDir)) {
-                    long jsFiles = stream.filter(p -> p.toString().endsWith(".js")).count();
                     summary.append("  JavaScript files: ").append(jsFiles).append("\n");
                 }
             }

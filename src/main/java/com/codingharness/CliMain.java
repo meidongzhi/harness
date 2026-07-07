@@ -247,8 +247,9 @@ public class CliMain {
         LlmProvider llmProvider;
         FeedbackSensor feedbackSensor;
 
-        if (credentialStore.exists("api_key")) {
-            String apiKey = credentialStore.retrieve("api_key").orElse("");
+        Optional<String> apiKeyOpt = credentialStore.retrieve("api_key");
+        if (apiKeyOpt.isPresent()) {
+            String apiKey = apiKeyOpt.get();
             String baseUrl = config.baseUrl();
             System.out.println("Using DeepSeek API (real mode)");
             llmProvider = new DeepSeekProvider(apiKey, baseUrl);

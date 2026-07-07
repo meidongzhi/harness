@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class DeepSeekProvider implements LlmProvider {
@@ -149,11 +150,10 @@ public class DeepSeekProvider implements LlmProvider {
         Map<String, Object> usage = (Map<String, Object>) responseMap.get("usage");
         LlmResponse.TokenUsage tokenUsage;
         if (usage != null) {
-            tokenUsage = new LlmResponse.TokenUsage(
-                    ((Number) usage.get("prompt_tokens")).intValue(),
-                    ((Number) usage.get("completion_tokens")).intValue(),
-                    ((Number) usage.get("total_tokens")).intValue()
-            );
+            int promptTokens = Optional.ofNullable((Number) usage.get("prompt_tokens")).map(Number::intValue).orElse(0);
+            int completionTokens = Optional.ofNullable((Number) usage.get("completion_tokens")).map(Number::intValue).orElse(0);
+            int totalTokens = Optional.ofNullable((Number) usage.get("total_tokens")).map(Number::intValue).orElse(0);
+            tokenUsage = new LlmResponse.TokenUsage(promptTokens, completionTokens, totalTokens);
         } else {
             tokenUsage = new LlmResponse.TokenUsage(0, 0, 0);
         }

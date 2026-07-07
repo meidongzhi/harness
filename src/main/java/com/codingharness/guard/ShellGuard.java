@@ -30,6 +30,11 @@ public class ShellGuard implements Guard {
 
         String command = cmdObj.toString().trim();
 
+        // Check for shell metacharacters that could allow command injection
+        if (command.matches(".*[;&|`$].*")) {
+            return GuardResult.requireApproval("Shell metacharacters detected in command", "WARNING");
+        }
+
         for (String pattern : DANGEROUS_PATTERNS) {
             if (command.contains(pattern)) {
                 return GuardResult.block("Dangerous shell command: " + pattern);

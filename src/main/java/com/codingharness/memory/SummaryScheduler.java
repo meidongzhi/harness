@@ -47,8 +47,15 @@ public class SummaryScheduler {
         );
 
         LlmResponse response = llmProvider.complete(request);
+        if (response == null) {
+            return new ConversationSummary(UUID.randomUUID().toString(), "(summary unavailable)", List.of(), Instant.now());
+        }
+        String content = response.content();
+        if (content == null || content.isBlank()) {
+            return new ConversationSummary(UUID.randomUUID().toString(), "(summary unavailable)", List.of(), Instant.now());
+        }
 
-        String summary = response.content();
+        String summary = content;
         List<String> topics = extractTopics(summary);
 
         return new ConversationSummary(
@@ -66,6 +73,7 @@ public class SummaryScheduler {
      * topic extraction.
      */
     private List<String> extractTopics(String text) {
+        if (text == null || text.isBlank()) return List.of();
         return List.of(text.split("\\s+")).stream()
                 .filter(w -> w.length() > 3 && Character.isUpperCase(w.charAt(0)))
                 .map(w -> w.replaceAll("[^a-zA-Z]", ""))

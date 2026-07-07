@@ -43,7 +43,8 @@ public class AgentLoopImpl {
             var response = llm.complete(request);
             if (response == null) {
                 history.add("ERROR: LLM returned null response");
-                feedback = FeedbackResult.allGood();  // can't determine
+                feedback = new FeedbackResult(false, List.of(), List.of(
+                    new FeedbackResult.CompileError("AgentLoop", 0, "LLM returned null response")), List.of());
                 var decision = stopJudge.decide(history, feedback, turn);
                 if (decision != StopJudge.StopDecision.CONTINUE) {
                     return mapDecision(decision);

@@ -25,8 +25,8 @@ public class StopJudge {
         }
 
         if (feedback.allPassed() && !history.isEmpty()) {
-            String lastAction = history.get(history.size() - 1);
-            if (lastAction.contains("test_run") || lastAction.contains("all tests pass")) {
+            boolean hasToolExecution = history.stream().anyMatch(h -> h.startsWith("Tool "));
+            if (hasToolExecution) {
                 return StopDecision.SUCCESS;
             }
         }
